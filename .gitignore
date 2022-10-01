@@ -1,0 +1,9 @@
+# dependencies
+node_modules
+package-lock.json
+
+# credentials
+.env
+
+# app
+index.test.js
