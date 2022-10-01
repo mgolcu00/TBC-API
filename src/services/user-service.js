@@ -32,13 +32,17 @@ const createUser = (data) => {
         hashPassword(password, (err, hash) => {
             if (err) {
                 reject(err);
+                return;
             }
             const text = "INSERT INTO users (email,username,password) VALUES ($1,$2,$3) RETURNING *";
             const values = [email, username, hash];
             pool.query(text, values, (err, res) => {
+                console.log(err, res);
                 if (err) {
                     reject(err);
+                    return;
                 }
+
                 resolve(res.rows[0]);
             });
         });
@@ -54,6 +58,7 @@ const getUserByEmailAndPassword = (data) => {
         pool.query(text, values, (err, res) => {
             if (err) {
                 reject(err);
+                return;
             }
             const user = res.rows[0];
             if (user) {
@@ -82,21 +87,25 @@ const getUserByUsernameAndPassword = (data) => {
         pool.query(text, values, (err, res) => {
             if (err) {
                 reject(err);
+                return;
             }
             const user = res.rows[0];
             if (user) {
                 comparePassword(password, user.password, (err, res) => {
                     if (err) {
                         reject(err);
+                        return;
                     }
                     if (res) {
                         resolve(user);
                     } else {
                         reject("Wrong password");
+                        return;
                     }
                 });
             } else {
                 reject("User not found");
+                return;
             }
         });
     }
@@ -110,6 +119,7 @@ const getUser = (id) => {
         pool.query(text, values, (err, res) => {
             if (err) {
                 reject(err);
+                return;
             }
             resolve(res.rows[0]);
         });
@@ -123,6 +133,7 @@ const getAllUsers = () => {
         pool.query(text, (err, res) => {
             if (err) {
                 reject(err);
+                return;
             }
             resolve(res.rows);
         });
@@ -138,6 +149,7 @@ const updateUser = (id, data) => {
         pool.query(text, values, (err, res) => {
             if (err) {
                 reject(err);
+                return;
             }
             resolve(res.rows[0]);
         });
@@ -152,9 +164,19 @@ const deleteUser = (id) => {
         pool.query(text, values, (err, res) => {
             if (err) {
                 reject(err);
+                return;
             }
             resolve(res.rows[0]);
         });
     }
     );
+}
+module.exports = {
+    createUser,
+    getUser,
+    getAllUsers,
+    updateUser,
+    deleteUser,
+    getUserByEmailAndPassword,
+    getUserByUsernameAndPassword
 }
