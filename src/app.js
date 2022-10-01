@@ -22,6 +22,9 @@ const API_URL = process.env.API_URL || `http://${HOST}:${PORT}/${NAME}/${VERSION
 const authRouter = require('./routes/auth-router');
 app.use(`/${NAME}/${VERSION}/auth`, authRouter);
 
+const bookRouter = require('./routes/book-router');
+app.use(`/${NAME}/${VERSION}/books`, bookRouter);
+
 
 
 app.listen(PORT,HOST, () => {
