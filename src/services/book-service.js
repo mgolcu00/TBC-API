@@ -41,17 +41,50 @@ const createBook = (book) => {
     );
 }
 
-const getBookByGoogleId = (google_id) => {
+const listToString = (list) => {
+    let str = '';
+    for (let i = 0; i < list.length; i++) {
+        str += list[i];
+        if (i < list.length - 1) {
+            str += ', ';
+        }
+    }
+    return str;
+}
+
+const getBookByGoogleId = (googleId) => {
     return new Promise(function (resolve, reject) {
-        const text = "SELECT * FROM books WHERE google_id = $1";
-        const values = [google_id];
-        pool.query(text, values, (err, res) => {
-            if (err) {
+        axios.get(`https://www.googleapis.com/books/v1/volumes/${googleId}`)
+            .then(response => {
+                console.log(response.data);
+                const book = response.data;
+                const { title, authors, description, imageLinks, pageCount } = book.volumeInfo;
+                const google_id = book.id;
+                const author = authors ? listToString(authors) : '';
+                const image_url = imageLinks ? imageLinks.thumbnail : '';
+                const page_count = pageCount ? pageCount : 0;
+                const newBook = {
+                    google_id,
+                    title,
+                    author,
+                    description,
+                    image_url,
+                    page_count
+                };
+                BookService.createBook(newBook)
+                    .then(book => {
+                        resolve(book);
+                    }
+                    )
+                    .catch(err => {
+                        reject(err);
+                    }
+                    );
+            })
+            .catch(err => {
                 reject(err);
-                return;
             }
-            resolve(res.rows[0]);
-        });
+            );
     }
     );
 }
