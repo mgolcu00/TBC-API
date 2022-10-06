@@ -171,6 +171,9 @@ const deleteUser = (id) => {
     }
     );
 }
+
+
+
 module.exports = {
     createUser,
     getUser,

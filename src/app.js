@@ -25,6 +25,9 @@ app.use(`/${NAME}/${VERSION}/auth`, authRouter);
 const bookRouter = require('./routes/book-router');
 app.use(`/${NAME}/${VERSION}/books`, bookRouter);
 
+const generalRouter = require('./routes/general-router');
+app.use(`/${NAME}/${VERSION}/general`, generalRouter);
+
 
 
 app.listen(PORT,HOST, () => {

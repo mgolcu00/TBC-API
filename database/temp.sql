@@ -258,3 +258,69 @@ WHERE club_readed_books.club_id = '1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p';
 SELECT meetings.id, meetings.club_id, meetings.date_time, meetings.title, meetings.description, meetings.isActive, meetings.meeting_url
 FROM meetings
 WHERE meetings.club_id = '1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p';
+
+
+
+
+
+
+
+-- GET ME
+-- GET USER
+-- GET USER CLUB if not extist return null
+SELECT
+    users.id, users.username, users.email, users.role, users.avatar_url, users.created_at, users.updated_at,
+    clubs.id, clubs.name, clubs.admin_id, clubs.invitation_code, clubs.header_image_url, clubs.description, clubs.created_at, clubs.updated_at
+FROM users
+LEFT JOIN clubs ON users.id = clubs.admin_id
+WHERE users.id = '1a1a1a1a-1a1a-1a1a-1a1a-1a1a1a1a1a1a';
+
+
+-- GET CLUB MEMBERS with user 
+SELECT
+    users.id, users.username, users.email, users.role, users.avatar_url, users.created_at, users.updated_at
+FROM users
+INNER JOIN club_members ON users.id = club_members.user_id
+WHERE club_members.club_id = '1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p';
+
+
+-- TRIGGER IF ADD BOOK TO NEXT BOOKS THEN UP TO PRIORITY GET LAST PRIORITY + 1
+CREATE OR REPLACE FUNCTION up_priority() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.priority = (SELECT priority FROM club_next_books WHERE club_id = NEW.club_id ORDER BY priority DESC LIMIT 1) + 1;
+    UPDATE club_next_books SET priority = NEW.priority + 1 WHERE club_id = NEW.club_id AND book_id = NEW.book_id;
+    RETURN NEW;
+END;
+BEGIN
+    UPDATE club_next_books SET priority = priority + 1 WHERE club_id = NEW.club_id AND book_id = NEW.book_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER up_priority
+    AFTER INSERT ON club_next_books
+    FOR EACH ROW
+    EXECUTE PROCEDURE up_priority();
+
+
+
+
+DELETE FROM club_next_books WHERE  book_id = '2676133a-b259-45d6-8425-2ac0fda19547';
+
+
+
+
+-- set readed date nullable
+ALTER TABLE club_readed_books ALTER COLUMN readed_date DROP NOT NULL;
+
+-- TRIGGER FOR ADD READED BOOKS AND READED DATE(LONG)
+CREATE OR REPLACE FUNCTION add_readed_date() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.readed_date = EXTRACT(EPOCH FROM NOW())::INTEGER;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER add_readed_date
+    BEFORE INSERT ON club_readed_books
+    FOR EACH ROW
+    EXECUTE PROCEDURE add_readed_date();

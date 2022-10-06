@@ -4,7 +4,8 @@ dotenv.config();
 
 const HEADER_KEY = "authorization";
 exports.verifyToken = (req, res, next) => {
-    const token = req.headers[HEADER_KEY];
+    let token = req.headers[HEADER_KEY];
+    token = token.split(' ')[1];
     if (!token) {
         return res.status(403).send({ auth: false, message: 'No token provided.' });
     }
@@ -12,7 +13,7 @@ exports.verifyToken = (req, res, next) => {
         if (err) {
             return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
         }
-        req.userId = decoded.id;
+        req.user_id = decoded.user.id;
         next();
     });
 }

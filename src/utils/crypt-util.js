@@ -13,3 +13,15 @@ exports.comparePassword = (password,hash,cb) => {
         cb(err,res);
     });
 }
+
+exports.createInvitationCode = (name) => {
+    let invitationName = name.split(' ').join('').split('').sort(() => 0.5 - Math.random()).join('').substring(0, 4);
+    invitationName=invitationName.toUpperCase().trim();
+    let invitationNumber = Math.floor(1000 + Math.random() * 9000);
+    const invitationCode= invitationName + invitationNumber;
+    
+    if (invitationCode.length != 8) {
+        return this.createInvitationCode(name);
+    }
+    return invitationCode;
+}
